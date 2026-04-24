@@ -3,7 +3,8 @@ from models.gambler import Gambler
 from services.gambler_service import GamblerProfileService
 from services.stake_management_service import StakeManagementService
 from dto.stake_history_report import StakeHistoryReport
-
+from services.betting_service import BettingService
+from strategies.fixed_strategy import FixedStrategy
 
 def main():
     try:
@@ -62,6 +63,22 @@ def main():
 
     except Exception as e:
         print("Error:", e)
+        
+
+betting_service = BettingService()
+
+print("\n--- Place Bet ---")
+bet = betting_service.place_bet(gambler_id, 100)
+print(bet)
+
+print("\n--- Resolve Bet (Win) ---")
+result = betting_service.resolve_bet(gambler_id, bet["bet_id"], True)
+print(result)
+
+print("\n--- Strategy Bet ---")
+strategy = FixedStrategy(50)
+bet2 = betting_service.place_bet_with_strategy(gambler_id, strategy)
+print(bet2)
 
 
 if __name__ == "__main__":
