@@ -3,7 +3,6 @@ from config.settings import DB_CONFIG
 
 
 def create_tables():
-    # connect WITHOUT database first
     temp_config = DB_CONFIG.copy()
     temp_config.pop("database")
 
@@ -48,38 +47,90 @@ def create_tables():
         FOREIGN KEY (gambler_id) REFERENCES gamblers(gambler_id)
     )
     """)
+
     cursor.execute("""
-CREATE TABLE IF NOT EXISTS bets (
-    bet_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    gambler_id BIGINT,
-    bet_amount DECIMAL(10,2),
-    outcome VARCHAR(10),
-    win_amount DECIMAL(10,2),
-    created_at DATETIME,
-    FOREIGN KEY (gambler_id) REFERENCES gamblers(gambler_id)
-)
-""")
+    CREATE TABLE IF NOT EXISTS stake_transactions (
+        transaction_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+        gambler_id BIGINT,
+        amount DECIMAL(10,2),
+        transaction_type VARCHAR(50),
+        balance_after DECIMAL(10,2),
+        created_at DATETIME,
+        FOREIGN KEY (gambler_id) REFERENCES gamblers(gambler_id)
+    )
+    """)
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS betting_strategies (
-    strategy_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    strategy_name VARCHAR(100)
-)
-""")
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS sessions (
+        session_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+        gambler_id BIGINT,
+        start_time DATETIME,
+        end_time DATETIME,
+        FOREIGN KEY (gambler_id) REFERENCES gamblers(gambler_id)
+    )
+    """)
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS game_records (
-    record_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    gambler_id BIGINT,
-    bet_id BIGINT,
-    result VARCHAR(20),
-    created_at DATETIME,
-    FOREIGN KEY (gambler_id) REFERENCES gamblers(gambler_id),
-    FOREIGN KEY (bet_id) REFERENCES bets(bet_id)
-)
-""")
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS running_totals_snapshots (
+        snapshot_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+        gambler_id BIGINT,
+        current_stake DECIMAL(10,2),
+        peak_stake DECIMAL(10,2),
+        lowest_stake DECIMAL(10,2),
+        created_at DATETIME
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS bets (
+        bet_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+        gambler_id BIGINT,
+        bet_amount DECIMAL(10,2),
+        outcome VARCHAR(10),
+        win_amount DECIMAL(10,2),
+        created_at DATETIME,
+        FOREIGN KEY (gambler_id) REFERENCES gamblers(gambler_id)
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS betting_strategies (
+        strategy_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+        strategy_name VARCHAR(100)
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS game_records (
+        record_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+        gambler_id BIGINT,
+        bet_id BIGINT,
+        result VARCHAR(20),
+        created_at DATETIME,
+        FOREIGN KEY (gambler_id) REFERENCES gamblers(gambler_id),
+        FOREIGN KEY (bet_id) REFERENCES bets(bet_id)
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS pause_records (
+        pause_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+        gambler_id BIGINT,
+        pause_start DATETIME,
+        pause_end DATETIME
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS session_parameters (
+        param_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+        gambler_id BIGINT,
+        max_duration INT,
+        auto_stop BOOLEAN
+    )
+    """)
 
     conn.commit()
     conn.close()
 
-    print("Database & tables ready")
+    print("Database & all tables (UC1–UC4) ready")
