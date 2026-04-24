@@ -129,8 +129,17 @@ def create_tables():
         auto_stop BOOLEAN
     )
     """)
+        cursor.execute("""
+    CREATE TABLE IF NOT EXISTS validation_events (
+    event_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gambler_id BIGINT,
+    event_type VARCHAR(50),
+    message TEXT,
+    level VARCHAR(10),
+    created_at DATETIME
+)
 
     conn.commit()
-    conn.close()
+  """)   conn.close()
 
     print("Database & all tables (UC1–UC4) ready")
