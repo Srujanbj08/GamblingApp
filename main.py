@@ -6,6 +6,8 @@ from services.betting_service import BettingService
 from services.game_session_manager import GameSessionManager
 from tracking_and_reports.stake_history_report import StakeHistoryReport
 from strategies.fixed_strategy import FixedStrategy
+from services.win_loss_calculator import WinLossCalculator
+from tracking_and_reports.win_loss_statistics import WinLossStatistics
 
 
 def main():
@@ -85,6 +87,11 @@ def main():
 
         print("Final Stats:", profile_service.get_gambler_stats(gambler_id))
         print("Stake Report:", report_service.generate_report(gambler_id))
+calc = WinLossCalculator()
+stats = WinLossStatistics()
+
+calc.update_running_totals(gambler_id)
+print(stats.generate_statistics(gambler_id))
 
     except Exception as e:
         print("Error:", e)
