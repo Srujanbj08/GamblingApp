@@ -8,6 +8,8 @@ from tracking_and_reports.stake_history_report import StakeHistoryReport
 from strategies.fixed_strategy import FixedStrategy
 from services.win_loss_calculator import WinLossCalculator
 from tracking_and_reports.win_loss_statistics import WinLossStatistics
+from utils.input_validator import InputValidator
+
 
 
 def main():
@@ -92,6 +94,10 @@ stats = WinLossStatistics()
 
 calc.update_running_totals(gambler_id)
 print(stats.generate_statistics(gambler_id))
+validator = InputValidator()
+
+print(validator.validate_bet_amount(gambler_id, 100))
+print(validator.validate_stake_limits(gambler_id))
 
     except Exception as e:
         print("Error:", e)
