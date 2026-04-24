@@ -1,0 +1,3 @@
+class BaseStrategy:
+    def calculate_bet(self, current_stake):
+        raise NotImplementedError
