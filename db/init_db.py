@@ -48,6 +48,36 @@ def create_tables():
         FOREIGN KEY (gambler_id) REFERENCES gamblers(gambler_id)
     )
     """)
+    cursor.execute("""
+CREATE TABLE IF NOT EXISTS bets (
+    bet_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gambler_id BIGINT,
+    bet_amount DECIMAL(10,2),
+    outcome VARCHAR(10),
+    win_amount DECIMAL(10,2),
+    created_at DATETIME,
+    FOREIGN KEY (gambler_id) REFERENCES gamblers(gambler_id)
+)
+""")
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS betting_strategies (
+    strategy_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    strategy_name VARCHAR(100)
+)
+""")
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS game_records (
+    record_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    gambler_id BIGINT,
+    bet_id BIGINT,
+    result VARCHAR(20),
+    created_at DATETIME,
+    FOREIGN KEY (gambler_id) REFERENCES gamblers(gambler_id),
+    FOREIGN KEY (bet_id) REFERENCES bets(bet_id)
+)
+""")
 
     conn.commit()
     conn.close()
