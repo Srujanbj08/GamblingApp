@@ -1,15 +1,17 @@
 from db.init_db import create_tables
 from models.gambler import Gambler
+
 from services.gambler_service import GamblerProfileService
 from services.stake_management_service import StakeManagementService
 from services.betting_service import BettingService
 from services.game_session_manager import GameSessionManager
-from tracking_and_reports.stake_history_report import StakeHistoryReport
-from strategies.fixed_strategy import FixedStrategy
 from services.win_loss_calculator import WinLossCalculator
-from tracking_and_reports.win_loss_statistics import WinLossStatistics
-from utils.input_validator import InputValidator
 
+from tracking_and_reports.stake_history_report import StakeHistoryReport
+from tracking_and_reports.win_loss_statistics import WinLossStatistics
+
+from strategies.fixed_strategy import FixedStrategy
+from utils.input_validator import InputValidator
 
 
 def main():
@@ -22,6 +24,10 @@ def main():
         betting_service = BettingService()
         session_manager = GameSessionManager()
         report_service = StakeHistoryReport()
+
+        calc = WinLossCalculator()
+        stats = WinLossStatistics()
+        validator = InputValidator()
 
         print("\n=== UC-01: GAMBLER PROFILE ===")
 
@@ -67,6 +73,9 @@ def main():
 
         print("\n=== UC-03: BETTING ===")
 
+        print("\n--- Input Validation ---")
+        print(validator.validate_bet_amount(gambler_id, 100))
+
         bet = betting_service.place_bet(gambler_id, 100)
         print("Bet Placed:", bet)
 
@@ -77,6 +86,14 @@ def main():
         strategy = FixedStrategy(50)
         bet2 = betting_service.place_bet_with_strategy(gambler_id, strategy)
         print("Strategy Bet:", bet2)
+
+        print("\n=== UC-05: WIN/LOSS CALCULATION ===")
+
+        calc.update_running_totals(gambler_id)
+        print("Statistics:", stats.generate_statistics(gambler_id))
+
+        print("\n=== UC-06: VALIDATION CHECKS ===")
+        print(validator.validate_stake_limits(gambler_id))
 
         auto_end = session_manager.auto_end_if_limits_hit(gambler_id)
         if auto_end:
@@ -89,15 +106,6 @@ def main():
 
         print("Final Stats:", profile_service.get_gambler_stats(gambler_id))
         print("Stake Report:", report_service.generate_report(gambler_id))
-calc = WinLossCalculator()
-stats = WinLossStatistics()
-
-calc.update_running_totals(gambler_id)
-print(stats.generate_statistics(gambler_id))
-validator = InputValidator()
-
-print(validator.validate_bet_amount(gambler_id, 100))
-print(validator.validate_stake_limits(gambler_id))
 
     except Exception as e:
         print("Error:", e)
